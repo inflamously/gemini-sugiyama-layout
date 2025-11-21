@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { ViewType, GraphNodeData, LayoutConfig } from '../types';
-import { Loader2, Sparkles, RefreshCw, AlertCircle, Layers } from 'lucide-react';
+import { AlertCircle, Layers } from 'lucide-react';
 
 interface ControlsProps {
   config: LayoutConfig;
   onConfigChange: (c: LayoutConfig) => void;
   viewType: ViewType;
   onViewTypeChange: (v: ViewType) => void;
-  onGenerate: (prompt: string) => Promise<void>;
-  isGenerating: boolean;
   onDataChange: (data: GraphNodeData[]) => void;
   currentData: GraphNodeData[];
   showLayers: boolean;
@@ -20,26 +18,14 @@ export const Controls: React.FC<ControlsProps> = ({
   onConfigChange,
   viewType,
   onViewTypeChange,
-  onGenerate,
-  isGenerating,
   onDataChange,
   currentData,
   showLayers,
   onShowLayersChange
 }) => {
-  const [prompt, setPrompt] = useState('');
   const [jsonInput, setJsonInput] = useState(JSON.stringify(currentData, null, 2));
   const [tab, setTab] = useState<'visual' | 'data'>('visual');
   const [error, setError] = useState<string | null>(null);
-
-  const handleGenerate = () => {
-    if (!prompt.trim()) return;
-    onGenerate(prompt).then(() => {
-        setTab('visual');
-    }).catch(() => {
-        // Error handled in App
-    });
-  };
 
   const handleJsonUpdate = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
@@ -55,7 +41,7 @@ export const Controls: React.FC<ControlsProps> = ({
     }
   };
 
-  // Sync local JSON state if parent data changes externally (e.g. AI generation)
+  // Sync local JSON state if parent data changes externally
   React.useEffect(() => {
     setJsonInput(JSON.stringify(currentData, null, 2));
   }, [currentData]);
@@ -87,7 +73,7 @@ export const Controls: React.FC<ControlsProps> = ({
             className={`flex-1 py-3 text-sm font-medium ${tab === 'data' ? 'bg-white text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:bg-slate-100'}`}
             onClick={() => setTab('data')}
         >
-            Data & AI
+            Data
         </button>
       </div>
 
@@ -192,40 +178,17 @@ export const Controls: React.FC<ControlsProps> = ({
 
         {tab === 'data' && (
             <>
-                <section>
-                    <h3 className="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-3 flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" /> AI Generation
-                    </h3>
-                    <div className="space-y-2">
-                        <textarea 
-                            className="w-full p-3 text-sm border border-slate-200 rounded focus:ring-2 focus:ring-indigo-500 focus:border-transparent min-h-[80px]"
-                            placeholder="E.g., 'Software Development Lifecycle steps' or 'Family tree of Greek Gods'"
-                            value={prompt}
-                            onChange={(e) => setPrompt(e.target.value)}
-                        />
-                        <button
-                            onClick={handleGenerate}
-                            disabled={isGenerating || !prompt}
-                            className="w-full flex items-center justify-center py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
-                            Generate Graph
-                        </button>
-                    </div>
-                </section>
-
-                <hr className="border-slate-100" />
-
-                <section className="flex-1 flex flex-col">
+                <section className="flex-1 flex flex-col h-full">
                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex justify-between items-center">
                         <span>JSON Data</span>
                         {error && <span className="text-rose-500 flex items-center gap-1 normal-case"><AlertCircle className="w-3 h-3"/> Invalid JSON</span>}
                     </h3>
                     <textarea 
-                        className={`w-full flex-1 p-3 text-xs font-mono border rounded focus:ring-2 focus:ring-indigo-500 focus:border-transparent h-64 ${error ? 'border-rose-300 bg-rose-50' : 'border-slate-200'}`}
+                        className={`w-full flex-1 p-3 text-xs font-mono border rounded focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${error ? 'border-rose-300 bg-rose-50' : 'border-slate-200'}`}
                         value={jsonInput}
                         onChange={handleJsonUpdate}
                         spellCheck={false}
+                        style={{ minHeight: '300px' }}
                     />
                     <p className="text-[10px] text-slate-400 mt-2">
                         Format: Array of objects with <code>id</code> (string) and <code>parentIds</code> (string[]).

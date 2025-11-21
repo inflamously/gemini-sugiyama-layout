@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { GraphCanvas } from './components/GraphCanvas';
 import { Controls } from './components/Controls';
 import { calculateLayout } from './services/layoutService';
-import { generateGraphData } from './services/geminiService';
 import { GraphNodeData, LayoutConfig, ViewType, LayoutResult } from './types';
 import { AlertTriangle } from 'lucide-react';
 
@@ -32,7 +31,6 @@ const App: React.FC = () => {
   const [config, setConfig] = useState<LayoutConfig>(INITIAL_CONFIG);
   const [viewType, setViewType] = useState<ViewType>(ViewType.CARD);
   const [showLayers, setShowLayers] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Responsive defaults based on ViewType
@@ -56,23 +54,6 @@ const App: React.FC = () => {
     }
   }, [data, config]);
 
-  const handleGenerate = async (prompt: string) => {
-    setIsGenerating(true);
-    setError(null);
-    try {
-      const newData = await generateGraphData(prompt);
-      if (newData.length > 0) {
-        setData(newData);
-      } else {
-        setError("AI returned no data.");
-      }
-    } catch (e) {
-      setError("Failed to generate graph. Please check API key configuration or try again.");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   return (
     <div className="flex h-screen w-screen bg-slate-50 overflow-hidden">
       <Controls
@@ -80,8 +61,6 @@ const App: React.FC = () => {
         onConfigChange={setConfig}
         viewType={viewType}
         onViewTypeChange={setViewType}
-        onGenerate={handleGenerate}
-        isGenerating={isGenerating}
         onDataChange={setData}
         currentData={data}
         showLayers={showLayers}
@@ -101,7 +80,7 @@ const App: React.FC = () => {
                  </span>
             </div>
             <div className="text-xs text-slate-400">
-                Powered by Custom Layout & Gemini 2.5 Flash
+                Powered by Custom Layout Engine
             </div>
         </div>
 

@@ -1,5 +1,5 @@
 {
   "name": "Sugiyama Graph Visualizer",
-  "description": "A React-based interactive Directed Acyclic Graph (DAG) visualizer using a custom Sugiyama-style layout algorithm. Features custom node views, AI-assisted graph generation, and customizable layout settings.",
+  "description": "A React-based interactive Directed Acyclic Graph (DAG) visualizer using a custom Sugiyama-style layout algorithm. Features custom node views and customizable layout settings.",
   "requestFramePermissions": []
 }
